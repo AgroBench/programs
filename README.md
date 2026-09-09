@@ -18,8 +18,8 @@ Ordem de leitura: org → este README → `programs/agrobench/src/lib.rs` → ba
 | Pasta local | Repo GitHub | O que o jurado olha |
 |---|---|---|
 | `backend/` | [AgroBench/backend](https://github.com/AgroBench/backend) | API Go |
-| `frontend/` | [AgroBench/AgroBenchFront](https://github.com/AgroBench/AgroBenchFront) | App Vue |
-| `landing-page/` | [AgroBench/agrobenchlanding](https://github.com/AgroBench/agrobenchlanding) | Landing |
+| `frontend/` | [AgroBench/frontend](https://github.com/AgroBench/frontend) | App Vue |
+| `landing-page/` | [AgroBench/landing-page](https://github.com/AgroBench/landing-page) | Landing |
 | `pitch-deck/` | [AgroBench/pitch-deck](https://github.com/AgroBench/pitch-deck) | Deck |
 | `programs/` (este dir = workspace Anchor) | [AgroBench/programs](https://github.com/AgroBench/programs) | Programa Anchor |
 
