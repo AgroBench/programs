@@ -1,0 +1,21 @@
+[package]
+name = "agrobench"
+version = "0.1.0"
+description = "AgroBench on-chain USDC pool, locked producer stake, and monthly split"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "agrobench"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-wrapper = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+
+[dependencies]
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+anchor-spl = "0.32.1"

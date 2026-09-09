@@ -1,0 +1,18 @@
+# Artefatos de build (neste workspace o `target/` fica nesta raiz)
+target/
+.anchor/
+test-ledger/
+**/*.rs.bk
+.DS_Store
+
+# Wallets / upgrade authority — NÃO commitar (nem ~/.config/solana/id.json)
+id.json
+**/id.json
+
+# Treasury / secrets (o .env mora no backend; isto evita leak se alguém copiar a pasta)
+**/.env
+**/.env.*
+!**/.env.example
+
+# O program keypair `programs/agrobench/agrobench-keypair.json` DEVE ir no git:
+# é o program id da demo (jurados conferem o pubkey).
