@@ -1,5 +1,7 @@
 # O que você faz na mão
 
+**Estado atual: feito.** Programa na Devnet, `initialize` ok, lock/pool no ar. Este arquivo fica como runbook se precisar redeployar.
+
 O programa **não se cria no site da Solana**. Você faz `solana program deploy` na **Devnet** com o `.so` que já compilou. Sem `~/.config/solana/id.json` com SOL, não há deploy.
 
 Workspace Anchor (alvo): `/home/menegas/agrobench/programs/`  
@@ -13,23 +15,36 @@ Treasury **pública** (README da raiz): [`6q35hKFa6vFEy1Huon58gTUs9nkXrgubn496Bk
 
 - Crate Anchor compilado. **Não** precisa reescrever Rust/Go para “criar o programa”. Precisa **deployar**.
 - Program id já está em `declare_id!`, `Anchor.toml`, `config.dev.json`, `CHAIN_SOLANA_PROGRAM_ID` e `ix.go`. Backend e front **já apontam**. Front **não** tem program id (só assina a tx que o backend monta).
-- Keypair do program id: `/home/menegas/agrobench/programs/agrobench/agrobench-keypair.json`
-- `.so` **neste instante** (2026-09-09): ainda em `/home/menegas/agrobench/target/deploy/agrobench.so` (o workspace está sendo movido para `programs/`). Depois do move: `/home/menegas/agrobench/programs/target/deploy/agrobench.so`
-- Programa **não** está na Devnet (`getAccountInfo` = `null`). Não há `~/.config/solana/id.json`.
-- Não rode deploy sem `id.json`. Não gere wallet descartável.
+- Keypair do program id: `/home/menegas/agrobench/programs/programs/agrobench/agrobench-keypair.json`
+- `.so`: `/home/menegas/agrobench/programs/target/deploy/agrobench.so`
+- Programa **está na Devnet** (deploy + `initialize`). Authority em `~/.config/solana/id.json`.
+- Não gere outro program id. Redeploy só com o keypair atual.
 
 Confira o binário antes de deployar:
 
 ```bash
-ls -l /home/menegas/agrobench/programs/target/deploy/agrobench.so \
-      /home/menegas/agrobench/target/deploy/agrobench.so
+ls -l /home/menegas/agrobench/programs/target/deploy/agrobench.so
 ```
-
-Use o path que existir.
 
 ---
 
 ## 1. Carteira de upgrade authority (Solana CLI)
+
+### CLI no PATH
+
+O Agave/Solana **já está instalado** em `~/.local/share/solana/install/active_release/bin` (v4.2.2). Se der `command not found: solana-keygen`, o binário existe — falta o PATH. No zsh:
+
+```bash
+export PATH="$HOME/.local/share/solana/install/active_release/bin:$PATH"
+```
+
+Isso já foi colocado no `~/.zshrc`. Abra um terminal novo ou rode `source ~/.zshrc`, depois `solana-keygen --version`.
+
+Se um dia **não** houver essa pasta, instale:
+
+```bash
+sh -c "$(curl -sSfL https://release.anza.xyz/stable/install)"
+```
 
 Esta chave **não** é a treasury do backend. Papéis:
 
@@ -59,10 +74,10 @@ Se o airdrop RPC falhar: [https://faucet.solana.com](https://faucet.solana.com) 
 ## 2. Deploy do programa ONDE
 
 - Cluster: **Devnet**
-- Binário: `target/deploy/agrobench.so` (dentro de `programs/` depois do move)
+- Binário: `target/deploy/agrobench.so` (relativo a `/home/menegas/agrobench/programs`)
 - Program id: `--program-id` do **mesmo** keypair (`EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN`). **Não** gere outro id.
 
-**Comando canônico** (depois de `target/` estar em `programs/`):
+**Comando canônico:**
 
 ```bash
 cd /home/menegas/agrobench/programs
@@ -71,19 +86,10 @@ solana program deploy target/deploy/agrobench.so \
   --url devnet
 ```
 
-**Se `target/` ainda não foi movido** (estado atual do disco): `.so` na raiz do workspace; keypair já em `agrobench/`:
-
-```bash
-cd /home/menegas/agrobench/programs
-solana program deploy /home/menegas/agrobench/target/deploy/agrobench.so \
-  --program-id /home/menegas/agrobench/programs/agrobench/agrobench-keypair.json \
-  --url devnet
-```
-
 Os dois JSON de keypair devem ser o mesmo pubkey. Confirme:
 
 ```bash
-solana address -k /home/menegas/agrobench/programs/agrobench/agrobench-keypair.json
+solana address -k /home/menegas/agrobench/programs/programs/agrobench/agrobench-keypair.json
 # esperado: EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN
 ```
 
@@ -103,7 +109,7 @@ https://explorer.solana.com/address/EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN
 
 1. **Não** rode `solana-keygen new` para o programa.
 2. Use o keypair que já bate com `EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN`.
-3. Se o `target/deploy/agrobench-keypair.json` for outro: copie `agrobench/agrobench-keypair.json` para `target/deploy/` e só então deploye.
+3. Se o `target/deploy/agrobench-keypair.json` for outro: copie `programs/agrobench/agrobench-keypair.json` para `target/deploy/` e só então deploye.
 4. Só se você **gerar** um id novo: atualizar `declare_id!` + `Anchor.toml` + configs Go + **rebuild**. Isso **não** é o caso agora.
 
 ---
@@ -114,8 +120,8 @@ Env override: ponto vira underscore (`chain.solana.rpc_url` → `CHAIN_SOLANA_RP
 
 | Papel | O que é | Arquivo | Variável / campo | Precisa mudar depois do deploy? |
 |---|---|---|---|---|
-| Program id | Conta do `.so` na Devnet | `agrobench/src/lib.rs` | `declare_id!("EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN")` | **Não** (mesmo keypair) |
-| Program id | Cluster Anchor | `Anchor.toml` (neste dir, depois do move) | `[programs.devnet] agrobench = "…"` | **Não** |
+| Program id | Conta do `.so` na Devnet | `programs/agrobench/src/lib.rs` | `declare_id!("EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN")` | **Não** (mesmo keypair) |
+| Program id | Cluster Anchor | `Anchor.toml` (neste dir) | `[programs.devnet] agrobench = "…"` | **Não** |
 | Program id | Fallback Go (constante) | `backend/pkg/adapter/chain/solana/ix.go` | `ProgramIDDevnet` | **Não** (runtime usa o env) |
 | Program id | Config JSON | `backend/config/env/config.dev.json` | `chain.solana.program_id` | **Não** |
 | Program id | Env (sobe a API com programa) | `backend/.env` (nome em `.env.example`) | `CHAIN_SOLANA_PROGRAM_ID` | **Não** — já preenchido. Vazio = Memo/SPL |
@@ -193,26 +199,24 @@ Exige `CHAIN_SOLANA_PROGRAM_ID` não vazio. A treasury assina e paga o rent.
 
 ## 6. 5º repo GitHub (jurados)
 
-A raiz `/home/menegas/agrobench` **não** é git. O repo é **`git init` dentro de `programs/`**. Sem staging `/tmp`. **Não execute `gh` daqui** — você roda.
+A raiz `/home/menegas/agrobench` **não** é git. O repo é **`git init` dentro de `programs/`**. Sem staging `/tmp`. O GitHub [AgroBench/programs](https://github.com/AgroBench/programs) **já existe** (`origin` apontando). **Não execute `gh repo create` de novo.**
+
+Comando canônico (já rodado; só recriar se o `.git` sumir):
 
 ```bash
 cd /home/menegas/agrobench/programs
-
-# mapa/changelog ainda estão na raiz do workspace (não são git)
-cp /home/menegas/agrobench/ORG.md .
-cp /home/menegas/agrobench/O-QUE-FOI-FEITO.md .
-
+# .gitignore já cobre target/ .anchor .env id.json
 git init
-git add .
+git add Anchor.toml Cargo.toml Cargo.lock programs README.md DEPLOY-STATUS.md PASSO-A-PASSO-DEVNET.md ORG.md O-QUE-FOI-FEITO.md .gitignore
 git status
-# Esperado: Anchor.toml, Cargo.toml, crate agrobench/, README, INTERFACE, agrobench-keypair.json
+# Esperado: workspace Anchor + crate programs/agrobench/
 # Ausente: backend, frontend, landing-page, pitch-deck, target/, .env, id.json
 
 # --private se a org já deu acesso aos jurados; senão --public
 gh repo create AgroBench/programs --private --source=. --remote=origin --push
 ```
 
-Commitar `agrobench/agrobench-keypair.json` (program id da demo). **Não** commitar `id.json` nem treasury. Profile da org: colar `ORG.md` em `AgroBench/.github` → `profile/README.md`.
+Commitar `programs/agrobench/agrobench-keypair.json` (program id da demo). **Não** commitar `id.json` nem treasury. Profile da org: colar `ORG.md` em `AgroBench/.github` → `profile/README.md`.
 
 Não mexer em pitch-deck nem landing.
 
@@ -223,13 +227,13 @@ Não mexer em pitch-deck nem landing.
 1. `test -f ~/.config/solana/id.json` — se faltar, `solana-keygen new -o ~/.config/solana/id.json`.
 2. `solana config set --url https://api.devnet.solana.com` → `solana airdrop 2` (faucet se falhar) → `solana balance`.
 3. Confirmar pubkey do keypair = `EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN` (não gerar outro).
-4. `ls` o `.so`: `programs/target/deploy/` ou fallback `/home/menegas/agrobench/target/deploy/agrobench.so`.
+4. `ls` o `.so`: `/home/menegas/agrobench/programs/target/deploy/agrobench.so`.
 5. `cd /home/menegas/agrobench/programs` e `solana program deploy` (comando da §2) com `--url devnet`.
 6. `solana program show EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN --url devnet` + explorer `?cluster=devnet`.
 7. Conferir treasury: SOL + USDC; `.env` tem `CHAIN_SOLANA_TREASURY_PRIVATE_KEY` e `CHAIN_SOLANA_PROGRAM_ID` (não mudar o id).
 8. Admin login → `POST /api/v1/admin/chain/initialize` (ou `go run ./cmd chain-init`).
 9. Produtor **novo no browser** (`ensureWallet`); `GET /wallet`; mandar ≥10 USDC da treasury para essa pubkey (não usar o blob dummy da seed).
-10. `git init` em `programs/` + `gh repo create AgroBench/programs` (sem `/tmp`, sem pitch-deck).
+10. Repo GitHub **já existe** ([AgroBench/programs](https://github.com/AgroBench/programs)). Profile da org: colar `ORG.md`. Não `git init` na raiz `/home/menegas/agrobench`.
 
 ---
 

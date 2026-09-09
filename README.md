@@ -2,7 +2,7 @@
 
 ## Para jurados / org AgroBench
 
-Este diretório é o **crate** do programa on-chain Anchor `agrobench`: escrow de stake USDC do produtor (PDA + ATA), pool institucional e split mensal (`initialize`, `lock_stake`, `release_stake`, `credit_pool`, `distribute`).
+Este diretório é o **workspace Anchor** do programa on-chain `agrobench`: escrow de stake USDC do produtor (PDA + ATA), pool institucional e split mensal (`initialize`, `lock_stake`, `release_stake`, `credit_pool`, `distribute`). O crate está em `programs/agrobench/`.
 
 | | |
 |---|---|
@@ -11,11 +11,9 @@ Este diretório é o **crate** do programa on-chain Anchor `agrobench`: escrow d
 | Cluster alvo | Solana Devnet |
 | Workspace Anchor | **esta pasta.** `Anchor.toml` e o `Cargo.toml` do workspace estão aqui. O crate é `programs/agrobench/`. |
 | Interface (cliente Go) | [`programs/agrobench/INTERFACE.md`](./programs/agrobench/INTERFACE.md) |
-| Deploy | **Ainda não está na Devnet.** Status: [`DEPLOY-STATUS.md`](./DEPLOY-STATUS.md). Passo a passo: [`PASSO-A-PASSO-DEVNET.md`](./PASSO-A-PASSO-DEVNET.md). Há `.so` local em `target/deploy/agrobench.so`. |
+| Deploy | **Na Devnet, inicializado.** Status: [`DEPLOY-STATUS.md`](./DEPLOY-STATUS.md). Explorer: [`EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN`](https://explorer.solana.com/address/EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN?cluster=devnet). Passo a passo (já executado): [`PASSO-A-PASSO-DEVNET.md`](./PASSO-A-PASSO-DEVNET.md). |
 
-A org GitHub **não é um monorepo**. Cada pasta da raiz local `/home/menegas/agrobench` é um repo da org [`AgroBench`](https://github.com/AgroBench). **Este diretório ainda não é repo** — `git init` aqui (comandos em [`ORG.md`](./ORG.md)). Changelog desta sessão: [`O-QUE-FOI-FEITO.md`](./O-QUE-FOI-FEITO.md).
-
-Ordem de leitura: org → este README → `programs/agrobench/src/lib.rs` → backend `pkg/adapter/chain/solana/chain.go` → frontend `src/models/stake.js` → explorer só depois do deploy.
+Ordem de leitura: org → este README → `programs/agrobench/src/lib.rs` → backend `pkg/adapter/chain/solana/chain.go` → frontend `src/models/stake.js` → [explorer Devnet](https://explorer.solana.com/address/EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN?cluster=devnet).
 
 | Pasta local | Repo GitHub | O que o jurado olha |
 |---|---|---|
@@ -23,7 +21,7 @@ Ordem de leitura: org → este README → `programs/agrobench/src/lib.rs` → ba
 | `frontend/` | [AgroBench/AgroBenchFront](https://github.com/AgroBench/AgroBenchFront) | App Vue |
 | `landing-page/` | [AgroBench/agrobenchlanding](https://github.com/AgroBench/agrobenchlanding) | Landing |
 | `pitch-deck/` | [AgroBench/pitch-deck](https://github.com/AgroBench/pitch-deck) | Deck |
-| `programs/` (este dir = workspace Anchor) | **AINDA NÃO É REPO — precisa criar** `AgroBench/programs` | Programa Anchor |
+| `programs/` (este dir = workspace Anchor) | [AgroBench/programs](https://github.com/AgroBench/programs) | Programa Anchor |
 
 ---
 
@@ -45,7 +43,7 @@ solana address -k programs/agrobench/agrobench-keypair.json
 
 O valor deve ser igual a `declare_id!` em `programs/agrobench/src/lib.rs` e a `[programs.devnet]` em `Anchor.toml`. Se gerar um keypair novo, atualize os três e copie o JSON para `target/deploy/agrobench-keypair.json`.
 
-Interface congelada para o cliente Go: [`agrobench/INTERFACE.md`](./agrobench/INTERFACE.md).
+Interface congelada para o cliente Go: [`programs/agrobench/INTERFACE.md`](./programs/agrobench/INTERFACE.md).
 
 ## Pré-requisitos
 
@@ -86,7 +84,7 @@ USDC Devnet não se airdropa via `solana airdrop`. Use o faucet Circle / contas 
 
 ## Build
 
-Na raiz do repo (`agrobench/`, onde está `Anchor.toml`):
+Neste diretório (`/home/menegas/agrobench/programs`, onde está `Anchor.toml`):
 
 ```bash
 anchor build
@@ -187,7 +185,7 @@ ATA (associada clássica, **não** Token-2022):
 
 ## Instruções (ordem das contas = ordem Anchor)
 
-Discriminators: `sha256("global:<nome>")[0..8]`. Ver tabela completa em `INTERFACE.md`.
+Discriminators: `sha256("global:<nome>")[0..8]`. Ver tabela completa em [`programs/agrobench/INTERFACE.md`](./programs/agrobench/INTERFACE.md).
 
 ### 1. `initialize` (sem args)
 

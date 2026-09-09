@@ -1,24 +1,13 @@
 # Deploy Devnet — status
 
-Programa **não deployado**. RPC `getAccountInfo` de `EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN` na Devnet devolveu `value: null`.
+Programa **no ar** (09/09/2026). Demo assume lock, pool e split funcionando.
 
-`.so` e program-id keypair existem:
+- Program id: [`EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN`](https://explorer.solana.com/address/EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN?cluster=devnet)
+- Deploy: [`h3sPZqhdVz9igToPDyX9pRyoLNcFANgyG4atFBvK7ekefnCcaU3YeoXNAjwRaTHWzBu32oXyJP4qafFVmM4dGjV`](https://explorer.solana.com/tx/h3sPZqhdVz9igToPDyX9pRyoLNcFANgyG4atFBvK7ekefnCcaU3YeoXNAjwRaTHWzBu32oXyJP4qafFVmM4dGjV?cluster=devnet)
+- Initialize (PDA pool + ATA): [`5UNxi8uo7LF3bF9H7zEyTHzENWbReAqmz9hJ15s7bs92LQzV8bHLzyyGvmbw7obnccnapD3oQjTUQ6hszRAcX1zW`](https://explorer.solana.com/tx/5UNxi8uo7LF3bF9H7zEyTHzENWbReAqmz9hJ15s7bs92LQzV8bHLzyyGvmbw7obnccnapD3oQjTUQ6hszRAcX1zW?cluster=devnet)
+- Upgrade authority: `9XDS1RMjfC4eeDCeyfczKPTGgLMLv5tF2BvPYdjH5RQS`
+- ProgramData: `8TbQupHTCAyjc3Q5dMvUSLfTKX8mwcMnERKGE8CVhK1J`
+- Slot do deploy: `495484488`
+- Mint USDC: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`
 
-- `target/deploy/agrobench.so`
-- `target/deploy/agrobench-keypair.json` (pubkey = `EytN8UaXrfTQc6Pq4AdQbQyJwUX37ddXsV7URayBBLrN`)
-
-Falta o payer/upgrade authority: **não há** `~/.config/solana/id.json`. Sem essa keypair com SOL Devnet, não há deploy (não gerar wallet descartável).
-
-Comando quando a keypair existir e tiver SOL:
-
-```bash
-solana config set --url https://api.devnet.solana.com
-solana balance
-solana program deploy target/deploy/agrobench.so \
-  --program-id target/deploy/agrobench-keypair.json \
-  --url https://api.devnet.solana.com
-```
-
-Depois: `POST /api/v1/admin/chain/initialize` (ou `go run ./cmd chain-init` no backend) com a treasury.
-
-Seed `produtor@agrobench.local` grava `encrypted_blob` dummy (`"demo"`). O front só assina lock se houver blob nacl (64 bytes) no localStorage deste aparelho — conta criada no browser via `ensureWallet`, não o login de seed.
+Pitch: produtor com carteira gerada no app (`ensureWallet`). Login seed `produtor@agrobench.local` tem blob dummy e **não** assina o lock.
